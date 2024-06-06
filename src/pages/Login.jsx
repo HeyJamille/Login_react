@@ -1,31 +1,47 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import image from '../assets/help-desk.png';
 import { Api } from '../services/api';
 import { useAuth } from '../context/Auth';
-import { Navigate } from 'react-router-dom';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const { signIn } = useAuth();  // Used to access authentication context
+  const { signIn } = useAuth();  // Usado para acessar o contexto de autenticação
 
-  // Function to show/hide password
+  // Função para mostrar/ocultar senha
   const togglePassword = () => {
     setShowPassword(!showPassword);
   };
 
-  // Function to validate form
+  // Função para validar email
+  const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(String(email).toLowerCase());
+  };
+
+  // Função para validar senha
+  const validatePassword = (password) => {
+    return password.length >= 9;
+  };
+
+  // Função para validar formulário
   const validate = () => {
     if (!email && !password) {
-      setError('Por favor, insira um nome e uma senha');
+      setError('Por favor, insira um e-mail e uma senha.');
       return false;
     } else if (!email) {
-      setError('Por favor, insira um nome');
+      setError('Por favor, insira um e-mail.');
       return false;
     } else if (!password) {
-      setError('Por favor, insira uma senha');
+      setError('Por favor, insira uma senha.');
+      return false;
+    } else if (!validateEmail(email)) {
+      setError('Formato de e-mail inválido.');
+      return false;
+    } else if (!validatePassword(password)) {
+      setError('A senha deve ter no mínimo 9 caracteres.');
       return false;
     }
 
@@ -33,19 +49,19 @@ const Login = () => {
     return true;
   };
 
-  // Function to handle form submission
-  const handlesignIn = async (e) => {
+  // Função para lidar com envio do formulário
+  const handleSignIn = async (e) => {
     e.preventDefault();
   
-    try {
-      if (validate()) {
+    if (validate()) {
+      try {
         const response = await Api.post('/session', { email, password });
         console.log(response.data);
         signIn(response.data); // Atualiza o estado de autenticação
+      } catch (err) {
+        setError('E-mail ou senha incorreta. Tente novamente!');
+        console.error(err);
       }
-    } catch (err) {
-      setError('E-mail ou senha incorretos. Tente novamente!');
-      console.error(err);
     }
   };
 
@@ -53,18 +69,18 @@ const Login = () => {
     <article className="flex justify-center align-center bg-slate-300 h-screen">
       <form 
         className="flex flex-col self-center gap-2 p-[5%] md:bg-white md:rounded-2xl md:p-[2%] md:h-auto md:w-[400px]"
-        onSubmit={handlesignIn}
+        onSubmit={handleSignIn}
       >
         <img className="md:h-[200px]" src={image} alt="person help-desk" />
 
         <div className="flex flex-col">
-          <label className="mb-1" htmlFor="email">Nome:</label>
+          <label className="mb-1" htmlFor="email">E-mail:</label>
           <input 
-            className={`h-[40px] pl-2 focus:outline-none border-[0.2px] border-gray-300 rounded-md ${!email && error ? 'border-red-500' : ''}`}
+            className={`h-[40px] pl-2 focus:outline-none border-[0.2px] border-gray-300 rounded-md ${(!email && error.includes('e-mail')) || (error && !validateEmail(email)) ? 'border-red-500' : ''}`}
             type="text"
             id="email"
             name="email"
-            placeholder="Digite seu nome"
+            placeholder="Digite seu e-mail"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -73,7 +89,7 @@ const Login = () => {
         <div className="flex flex-col">
           <label className="mb-1" htmlFor="password">Senha:</label>
           <input 
-            className={`h-[40px] pl-2 focus:outline-none border-[0.2px] border-gray-300 rounded-md ${!password && error ? 'border-red-500' : ''}`}
+            className={`h-[40px] pl-2 focus:outline-none border-[0.2px] border-gray-300 rounded-md ${(!password && error.includes('senha')) || (error && !validatePassword(password)) ? 'border-red-500' : ''}`}
             type={showPassword ? 'text' : 'password'}
             id="password"
             name="password"
@@ -83,7 +99,7 @@ const Login = () => {
           />
         </div>
 
-        <span className="mb-2 text-red-500">{error}</span>
+        {error && <span className="text-red-500">{error}</span>}
 
         <div>
           <input
