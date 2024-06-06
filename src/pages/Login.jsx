@@ -18,10 +18,10 @@ const Login = () => {
   // Function to validate form
   const validate = () => {
     if (!email && !password) {
-      setError('Por favor, insira um nome e uma senha');
+      setError('Por favor, insira um e-mail e uma senha');
       return false;
     } else if (!email) {
-      setError('Por favor, insira um nome');
+      setError('Por favor, insira um e-mail');
       return false;
     } else if (!password) {
       setError('Por favor, insira uma senha');
@@ -52,19 +52,19 @@ const Login = () => {
   return (
     <article className="flex justify-center align-center bg-slate-300 h-screen">
       <form 
-        className="flex flex-col self-center gap-2 p-[5%] md:bg-white md:rounded-2xl md:p-[2%] md:h-auto md:w-[400px]"
+        className="flex flex-col self-center gap-3 p-[5%] md:bg-white md:rounded-2xl md:p-[2%] md:h-auto md:w-[400px]"
         onSubmit={handleSignIn}
       >
         <img className="h-[170px]" src={image} alt="person help-desk" />
 
         <div className="flex flex-col">
-          <label className="mb-1" htmlFor="email">Nome:</label>
+          <label className="mb-1" htmlFor="email">E-mail:</label>
           <input 
             className={`h-[40px] pl-2 focus:outline-none border-[0.2px] border-gray-300 rounded-md ${!email && error ? 'border-red-500' : ''}`}
             type="text"
             id="email"
             name="email"
-            placeholder="Digite seu nome"
+            placeholder="Digite seu e-mail"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -83,7 +83,7 @@ const Login = () => {
           />
         </div>
 
-        <span className="mb-2 text-red-500">{error}</span>
+        <span className="text-red-500">{error}</span>
 
         <div>
           <input
