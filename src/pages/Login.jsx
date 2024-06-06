@@ -8,40 +8,23 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const { signIn } = useAuth();  // Usado para acessar o contexto de autenticação
+  const { signIn } = useAuth();  // Used to access authentication context
 
-  // Função para mostrar/ocultar senha
+  // Function to show/hide password
   const togglePassword = () => {
     setShowPassword(!showPassword);
   };
 
-  // Função para validar email
-  const validateEmail = (email) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(String(email).toLowerCase());
-  };
-
-  // Função para validar senha
-  const validatePassword = (password) => {
-    return password.length >= 9;
-  };
-
-  // Função para validar formulário
+  // Function to validate form
   const validate = () => {
     if (!email && !password) {
-      setError('Por favor, insira um e-mail e uma senha.');
+      setError('Por favor, insira um nome e uma senha');
       return false;
     } else if (!email) {
-      setError('Por favor, insira um e-mail.');
+      setError('Por favor, insira um nome');
       return false;
     } else if (!password) {
-      setError('Por favor, insira uma senha.');
-      return false;
-    } else if (!validateEmail(email)) {
-      setError('Formato de e-mail inválido.');
-      return false;
-    } else if (!validatePassword(password)) {
-      setError('A senha deve ter no mínimo 9 caracteres.');
+      setError('Por favor, insira uma senha');
       return false;
     }
 
@@ -49,21 +32,22 @@ const Login = () => {
     return true;
   };
 
-  // Função para lidar com envio do formulário
   const handleSignIn = async (e) => {
     e.preventDefault();
-  
-    if (validate()) {
-      try {
+      
+    try {
+      if (validate()) {
         const response = await Api.post('/session', { email, password });
-        console.log(response.data);
-        signIn(response.data); // Atualiza o estado de autenticação
-      } catch (err) {
-        setError('E-mail ou senha incorreta. Tente novamente!');
-        console.error(err);
+        const token = response.data.user;
+        //console.log(token);
+        signIn(token); 
       }
+    } catch (err) {
+      setError('E-mail ou senha incorretos. Tente novamente!');
+      console.error(err);
     }
   };
+  
 
   return (
     <article className="flex justify-center align-center bg-slate-300 h-screen">
@@ -71,16 +55,16 @@ const Login = () => {
         className="flex flex-col self-center gap-2 p-[5%] md:bg-white md:rounded-2xl md:p-[2%] md:h-auto md:w-[400px]"
         onSubmit={handleSignIn}
       >
-        <img className="md:h-[200px]" src={image} alt="person help-desk" />
+        <img className="h-[170px]" src={image} alt="person help-desk" />
 
         <div className="flex flex-col">
-          <label className="mb-1" htmlFor="email">E-mail:</label>
+          <label className="mb-1" htmlFor="email">Nome:</label>
           <input 
-            className={`h-[40px] pl-2 focus:outline-none border-[0.2px] border-gray-300 rounded-md ${(!email && error.includes('e-mail')) || (error && !validateEmail(email)) ? 'border-red-500' : ''}`}
+            className={`h-[40px] pl-2 focus:outline-none border-[0.2px] border-gray-300 rounded-md ${!email && error ? 'border-red-500' : ''}`}
             type="text"
             id="email"
             name="email"
-            placeholder="Digite seu e-mail"
+            placeholder="Digite seu nome"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -89,7 +73,7 @@ const Login = () => {
         <div className="flex flex-col">
           <label className="mb-1" htmlFor="password">Senha:</label>
           <input 
-            className={`h-[40px] pl-2 focus:outline-none border-[0.2px] border-gray-300 rounded-md ${(!password && error.includes('senha')) || (error && !validatePassword(password)) ? 'border-red-500' : ''}`}
+            className={`h-[40px] pl-2 focus:outline-none border-[0.2px] border-gray-300 rounded-md ${!password && error ? 'border-red-500' : ''}`}
             type={showPassword ? 'text' : 'password'}
             id="password"
             name="password"
@@ -99,7 +83,7 @@ const Login = () => {
           />
         </div>
 
-        {error && <span className="text-red-500">{error}</span>}
+        <span className="mb-2 text-red-500">{error}</span>
 
         <div>
           <input

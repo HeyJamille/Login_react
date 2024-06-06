@@ -14,12 +14,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signIn = (userData) => {
-    const { token } = userData; // Supondo que userData tenha uma propriedade token
+    const { token } = userData; 
+    
     setUser(userData);
     setCookie('token', token, 30); // Define o cookie com o nome 'token' e expira em 30 dias
-    navigate('/home'); // Redireciona para /home após o login
+    navigate('/home'); 
   };
-
+  
   return (
     <AuthContext.Provider value={{ user, signIn }}>
       {children}
