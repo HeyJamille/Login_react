@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import image from '../assets/help-desk.png';
 import { Api } from '../services/api';
 import { useAuth } from '../context/Auth';
+import SubmitButton from '../components/SubmitButton';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -32,19 +33,18 @@ const Login = () => {
     return true;
   };
 
-  const handleSignIn = async (e) => {
-    e.preventDefault();
-      
+  const handleSignIn = async () => {
     try {
       if (validate()) {
         const response = await Api.post('/session', { email, password });
         const token = response.data.user;
         //console.log(token);
         signIn(token); 
+        await new Promise(resolve => setTimeout(resolve, 2000));
       }
     } catch (err) {
       setError('E-mail ou senha incorretos. Tente novamente!');
-      console.error(err);
+      //console.error(err);
     }
   };
   
@@ -53,7 +53,6 @@ const Login = () => {
     <article className="flex justify-center align-center bg-slate-300 h-screen">
       <form 
         className="flex flex-col self-center gap-3 p-[5%] md:bg-white md:rounded-2xl md:p-[2%] md:h-auto md:w-[400px]"
-        onSubmit={handleSignIn}
       >
         <img className="h-[170px]" src={image} alt="person help-desk" />
 
@@ -95,11 +94,7 @@ const Login = () => {
           <label className="pl-2" htmlFor="show_password">Mostrar senha</label>
         </div>
 
-        <input 
-          className="mt-1 h-[40px] w-full bg-blue-500 hover:bg-blue-600 text-white rounded-md cursor-pointer"
-          type="submit"
-          value="Enviar"
-        />
+        <SubmitButton onSubmit={handleSignIn} />
       </form>
     </article>
   );
